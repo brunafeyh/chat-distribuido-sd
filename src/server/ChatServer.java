@@ -4,6 +4,7 @@ import common.Message;
 
 import java.io.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -12,6 +13,8 @@ public class ChatServer {
     private static final int UDP_PORT = 12346;
     private static final Map<String, Socket> clients = new ConcurrentHashMap<>();
     private static final ExecutorService clientPool = Executors.newCachedThreadPool();
+    private static final File logFile = new File("logs/server.log");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(TCP_PORT);
@@ -20,7 +23,8 @@ public class ChatServer {
         System.out.println("[TCP] Servidor iniciado na porta " + TCP_PORT);
         System.out.println("[UDP] Servidor ouvindo na porta " + UDP_PORT);
 
-        // Thread para escutar mensagens UDP
+        new File("logs").mkdirs();
+
         new Thread(() -> listenUDP(udpSocket)).start();
 
         while (true) {
@@ -30,13 +34,13 @@ public class ChatServer {
     }
 
     private static void handleClient(Socket socket) {
-        try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+        String username = null;
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
             out.println("Digite seu nome de usuário:");
             System.out.println("[DEBUG] Aguardando nome do usuário...");
-            String username = in.readLine();
+            username = in.readLine();
             System.out.println("[DEBUG] Recebido: " + username);
 
             if (username == null || username.trim().isEmpty()) {
@@ -46,6 +50,7 @@ public class ChatServer {
             }
 
             clients.put(username, socket);
+            log("Conexão: " + username + " (" + socket.getInetAddress().getHostAddress() + ")");
             broadcast("[Servidor] " + username + " entrou no chat.", username);
 
             String input;
@@ -56,16 +61,21 @@ public class ChatServer {
                         String target = parts[1];
                         String msg = parts[2];
                         sendToUser(target, "[Privado de " + username + "]: " + msg);
+                        log("Mensagem privada de " + username + " para " + target + ": " + msg);
                     }
                 } else if (input.equals("/list")) {
                     out.println("Usuários conectados: " + clients.keySet());
                 } else {
                     broadcast("[" + username + "]: " + input, username);
+                    log("Mensagem de " + username + " para todos: " + input);
                 }
             }
         } catch (IOException e) {
             System.out.println("Erro com cliente: " + e.getMessage());
         } finally {
+            if (username != null) {
+                log("Desconexão: " + username);
+            }
             try { socket.close(); } catch (IOException ignored) {}
             clients.values().removeIf(s -> s.equals(socket));
         }
@@ -99,10 +109,20 @@ public class ChatServer {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
                 String received = new String(packet.getData(), 0, packet.getLength());
+                String logMsg = "UDP de " + packet.getAddress().getHostAddress() + ": " + received;
                 System.out.println("[UDP] Recebido: " + received);
+                log(logMsg);
             } catch (IOException e) {
                 System.out.println("Erro no UDP: " + e.getMessage());
             }
+        }
+    }
+
+    private static void log(String msg) {
+        try (PrintWriter logOut = new PrintWriter(new FileWriter(logFile, true))) {
+            logOut.println("[" + sdf.format(new Date()) + "] " + msg);
+        } catch (IOException e) {
+            System.err.println("Erro ao escrever no log: " + e.getMessage());
         }
     }
 }

@@ -1,1 +1,8 @@
 // Conteúdo simulado para server.log
+[2025-05-29 13:53:16] Conexão: bruna (127.0.0.1)
+[2025-05-29 13:53:32] Conexão: andre (127.0.0.1)
+[2025-05-29 13:53:48] Mensagem de andre para todos: /all oii
+[2025-05-29 13:54:07] Mensagem privada de andre para bruna: oii
+[2025-05-29 13:54:41] Conexão: anny (127.0.0.1)
+[2025-05-29 13:54:43] Mensagem de anny para todos: oiii
+[2025-05-29 13:54:54] Mensagem privada de anny para andre: oii
