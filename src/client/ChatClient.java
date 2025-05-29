@@ -30,11 +30,17 @@ public class ChatClient {
             // Interação do usuário
             while (true) {
                 String input = scanner.nextLine();
-                out.println(input);
 
-                // Primeira mensagem será o nome de usuário, pode-se sinalizar prontidão
-                if (input.trim().length() > 0) {
-                    System.out.println("[INFO] Você está conectado. Use /msg <usuário> <mensagem>, /all <mensagem> ou /list");
+                if (input.startsWith("/udp ")) {
+                    String msg = input.substring(5);
+                    sendUDPMessage(msg);
+                    System.out.println("[UDP] Mensagem enviada.");
+                } else {
+                    out.println(input);
+
+                    if (input.trim().length() > 0) {
+                        System.out.println("[INFO] Você está conectado. Use /msg <usuário> <mensagem>, /all <mensagem> ou /list");
+                    }
                 }
             }
 
