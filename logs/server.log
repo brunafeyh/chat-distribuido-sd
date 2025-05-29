@@ -1,24 +1,19 @@
-// Conteúdo simulado para server.log
-[2025-05-29 13:53:16] Conexão: bruna (127.0.0.1)
-[2025-05-29 13:53:32] Conexão: andre (127.0.0.1)
-[2025-05-29 13:53:48] Mensagem de andre para todos: /all oii
-[2025-05-29 13:54:07] Mensagem privada de andre para bruna: oii
-[2025-05-29 13:54:41] Conexão: anny (127.0.0.1)
-[2025-05-29 13:54:43] Mensagem de anny para todos: oiii
-[2025-05-29 13:54:54] Mensagem privada de anny para andre: oii
-[2025-05-29 14:13:34] Conexão: bruna (127.0.0.1)
-[2025-05-29 14:13:40] Mensagem de bruna para todos: /udp alerta urgente!
-[2025-05-29 14:13:56] Mensagem de bruna para todos: /udp alerta urgente
-[2025-05-29 14:14:10] Mensagem de bruna para todos: /all oi
-[2025-05-29 14:15:41] Mensagem de bruna para todos: /udp sua mensagem aqui
-[2025-05-29 14:16:09] Conexão: andre (127.0.0.1)
-[2025-05-29 14:16:12] UDP de 127.0.0.1: sua mensagem aqui
-[2025-05-29 14:16:38] Mensagem de bruna para todos: /udp oii
-[2025-05-29 14:21:56] Conexão: bruna (127.0.0.1)
-[2025-05-29 14:22:30] UDP de 127.0.0.1: teste de alerta
-[2025-05-29 14:22:59] Conexão: andre (127.0.0.1)
-[2025-05-29 14:23:08] Mensagem privada de andre para bruna: oii
-[2025-05-29 14:23:21] Mensagem de andre para todos: /all oiie
-[2025-05-29 14:23:31] Conexão: anny (127.0.0.1)
-[2025-05-29 14:23:41] Mensagem privada de anny para andre: oie andre do cc
-[2025-05-29 14:23:58] Mensagem de andre para todos: /all oi gente
+[2025-05-29 14:30:22] Conexão: bruna (127.0.0.1)
+[2025-05-29 14:30:28] Mensagem de bruna para todos: /all oii
+[2025-05-29 14:30:52] Conexão: andre (127.0.0.1)
+[2025-05-29 14:30:58] Mensagem de andre para todos: /all oi genti
+[2025-05-29 14:31:09] Conexão: anny (127.0.0.1)
+[2025-05-29 14:31:20] Mensagem privada de anny para andre: oi
+[2025-05-29 14:31:32] Mensagem de anny para todos: /all oi pessoal
+[2025-05-29 14:48:21] Conexão: bruna (127.0.0.1)
+[2025-05-29 14:48:25] Mensagem de bruna para todos: /all oi
+[2025-05-29 14:48:58] Conexão: anny (127.0.0.1)
+[2025-05-29 14:49:02] Mensagem de anny para todos: /all oiii
+[2025-05-29 14:49:10] Conexão: andre (127.0.0.1)
+[2025-05-29 14:49:16] Mensagem de andre para todos: /all ola pessoal
+[2025-05-29 14:50:17] UDP de 127.0.0.1: alerta urgente
+[2025-05-29 15:01:50] Desconexão: andre
+[2025-05-29 15:01:56] Desconexão: anny
+[2025-05-29 15:02:52] Conexão: bruna (127.0.0.1)
+[2025-05-29 15:03:03] Conexão: anny (127.0.0.1)
+[2025-05-29 15:03:10] Conexão: andre (127.0.0.1)

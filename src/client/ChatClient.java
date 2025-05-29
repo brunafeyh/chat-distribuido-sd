@@ -38,7 +38,7 @@ public class ChatClient {
                 } else {
                     out.println(input);
 
-                    if (input.trim().length() > 0) {
+                    if (!input.trim().isEmpty()) {
                         System.out.println("[INFO] Você está conectado. Use /msg <usuário> <mensagem>, /all <mensagem> ou /list");
                     }
                 }
