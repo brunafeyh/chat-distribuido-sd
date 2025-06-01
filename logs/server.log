@@ -17,3 +17,14 @@
 [2025-05-29 15:02:52] Conexão: bruna (127.0.0.1)
 [2025-05-29 15:03:03] Conexão: anny (127.0.0.1)
 [2025-05-29 15:03:10] Conexão: andre (127.0.0.1)
+[2025-06-01 12:31:28] Conexão: bruna (127.0.0.1)
+[2025-06-01 12:32:34] Conexão: andre (127.0.0.1)
+[2025-06-01 12:32:58] Conexão: anny (127.0.0.1)
+[2025-06-01 12:33:13] Mensagem de bruna para todos: /all oiii
+[2025-06-01 12:47:09] Conexão: bruna (127.0.0.1)
+[2025-06-01 12:47:16] Conexão: andre (127.0.0.1)
+[2025-06-01 12:47:23] Conexão: anny (127.0.0.1)
+[2025-06-01 12:47:28] Mensagem de anny para todos: /all oiii
+[2025-06-01 12:47:40] Mensagem privada de anny para andre: oi andre
+[2025-06-01 12:47:58] Mensagem privada de andre para bruna: oi bruna
+[2025-06-01 12:48:23] UDP de 127.0.0.1: alerta!
