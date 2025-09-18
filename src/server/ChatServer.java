@@ -1,7 +1,9 @@
 package server;
 
+import common.EncryptionUtil;
 import common.Message;
 
+import javax.crypto.SecretKey;
 import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
@@ -15,6 +17,15 @@ public class ChatServer {
     private static final ExecutorService clientPool = Executors.newCachedThreadPool();
     private static final File logFile = new File("logs/server.log");
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SecretKey encryptionKey;
+
+    static {
+        try {
+            encryptionKey = EncryptionUtil.getEncryptionKey();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(TCP_PORT);
@@ -37,11 +48,12 @@ public class ChatServer {
         String username = null;
         try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
-
-            out.println("Digite seu nome de usuário:");
+            out.println(EncryptionUtil.encrypt("Digite seu nome de usuário:", encryptionKey));
             System.out.println("[DEBUG] Aguardando nome do usuário...");
             username = in.readLine();
+            String descryptName = EncryptionUtil.decrypt(username, encryptionKey);
             System.out.println("[DEBUG] Recebido: " + username);
+            System.out.println("[DEBUG] Recebido: " + descryptName);
 
             if (username == null || username.trim().isEmpty()) {
                 out.println("Nome inválido. Conexão encerrada.");
@@ -49,29 +61,34 @@ public class ChatServer {
                 return;
             }
 
-            clients.put(username, socket);
-            log("Conexão: " + username + " (" + socket.getInetAddress().getHostAddress() + ")");
-            broadcast("[Servidor] " + username + " entrou no chat.", username);
+            clients.put(descryptName, socket);
+            log("Conexão: " + descryptName + " (" + socket.getInetAddress().getHostAddress() + ")");
+            broadcast("[Servidor] " + descryptName + " entrou no chat.", descryptName);
 
             String input;
             while ((input = in.readLine()) != null) {
-                if (input.startsWith("/msg ")) {
-                    String[] parts = input.split(" ", 3);
+                System.out.println("[DEBUG] Recebido Input: " + input);
+                String descryptInput = EncryptionUtil.decrypt(input, encryptionKey);
+                System.out.println("[DEBUG] Recebido Input: " + descryptInput);
+                if (descryptInput.startsWith("/msg ")) {
+                    String[] parts = descryptInput.split(" ", 3);
                     if (parts.length >= 3) {
                         String target = parts[1];
                         String msg = parts[2];
-                        sendToUser(target, "[Privado de " + username + "]: " + msg);
-                        log("Mensagem privada de " + username + " para " + target + ": " + msg);
+                        sendToUser(target, "[Privado de " + descryptName + "]: " + msg);
+                        log("Mensagem privada de " + descryptName + " para " + target + ": " + msg);
                     }
-                } else if (input.equals("/list")) {
-                    out.println("Usuários conectados: " + clients.keySet());
+                } else if (descryptInput.equals("/list")) {
+                    out.println("Usuários conectados: " + clients);
                 } else {
-                    broadcast("[" + username + "]: " + input, username);
-                    log("Mensagem de " + username + " para todos: " + input);
+                    broadcast("[" + descryptName + "]: " + descryptInput, descryptName);
+                    log("Mensagem de " + descryptName + " para todos: " + descryptInput);
                 }
             }
         } catch (IOException e) {
             System.out.println("Erro com cliente: " + e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             if (username != null) {
                 log("Desconexão: " + username);
@@ -86,8 +103,11 @@ public class ChatServer {
             if (!entry.getKey().equals(excludeUser)) {
                 try {
                     PrintWriter out = new PrintWriter(entry.getValue().getOutputStream(), true);
-                    out.println(message);
-                } catch (IOException ignored) {}
+                    String encryptMessage = EncryptionUtil.encrypt(message, encryptionKey);
+                    out.println(encryptMessage);
+                } catch (IOException ignored) {} catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -97,8 +117,11 @@ public class ChatServer {
         if (targetSocket != null) {
             try {
                 PrintWriter out = new PrintWriter(targetSocket.getOutputStream(), true);
-                out.println(message);
-            } catch (IOException ignored) {}
+                String encryptMessage = EncryptionUtil.encrypt(message, encryptionKey);
+                out.println(encryptMessage);
+            } catch (IOException ignored) {} catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -108,12 +131,20 @@ public class ChatServer {
             try {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
+
+                // Converte os bytes recebidos para String
                 String received = new String(packet.getData(), 0, packet.getLength());
-                String logMsg = "UDP de " + packet.getAddress().getHostAddress() + ": " + received;
-                System.out.println("[UDP] Recebido: " + received);
+
+                // Descriptografa o conteúdo recebido
+                String decrypted = EncryptionUtil.decrypt(received, encryptionKey);
+
+                String logMsg = "UDP de " + packet.getAddress().getHostAddress() + ": " + decrypted;
+                System.out.println("[UDP] Recebido: " + decrypted);
                 log(logMsg);
             } catch (IOException e) {
                 System.out.println("Erro no UDP: " + e.getMessage());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
     }

@@ -1,5 +1,8 @@
 package client;
 
+import common.EncryptionUtil;
+
+import javax.crypto.SecretKey;
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
@@ -8,6 +11,16 @@ public class ChatClient {
     private static final String SERVER_HOST = "localhost";
     private static final int TCP_PORT = 12345;
     private static final int UDP_PORT = 12346;
+    private static final SecretKey encryptionKey;
+
+    static {
+        try {
+            encryptionKey = EncryptionUtil.getEncryptionKey();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public static void main(String[] args) {
         try (Socket socket = new Socket(SERVER_HOST, TCP_PORT);
@@ -20,10 +33,13 @@ public class ChatClient {
                 String serverMsg;
                 try {
                     while ((serverMsg = in.readLine()) != null) {
-                        System.out.println(serverMsg);
+                        String descryptMessage = EncryptionUtil.decrypt(serverMsg, encryptionKey);
+                        System.out.println(descryptMessage);
                     }
                 } catch (IOException e) {
                     System.out.println("Conexão encerrada pelo servidor.");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
             }).start();
 
@@ -32,11 +48,16 @@ public class ChatClient {
                 String input = scanner.nextLine();
 
                 if (input.startsWith("/udp ")) {
-                    String msg = input.substring(5);
+                    String crypt = EncryptionUtil.encrypt(input, encryptionKey);
+                    String msg = crypt.substring(5);
                     sendUDPMessage(msg);
                     System.out.println("[UDP] Mensagem enviada.");
                 } else {
-                    out.println(input);
+                    String crypt = EncryptionUtil.encrypt(input, encryptionKey);
+
+                    System.out.println(crypt);
+                    System.out.println(encryptionKey);
+                    out.println(crypt);
 
                     if (!input.trim().isEmpty()) {
                         System.out.println("[INFO] Você está conectado. Use /msg <usuário> <mensagem>, /all <mensagem> ou /list");
@@ -46,6 +67,8 @@ public class ChatClient {
 
         } catch (IOException e) {
             System.err.println("Erro de conexão: " + e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
